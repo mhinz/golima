@@ -20,6 +20,7 @@ type Context struct {
 var (
 	foundIssue = 0  // process return value
 	reHeader   = regexp.MustCompile("^#{1,6} ")
+	reLink     = regexp.MustCompile("[\\w+\\]\\([\\w#]+\\)")
 )
 
 func main() {
@@ -77,7 +78,7 @@ func (ctx *Context) ruleProperHeader() {
 
 // Check if the current line is longer than 80 characters.
 func (ctx *Context) ruleLineLength() {
-	if len(ctx.curLine) > 80 {
+	if len(ctx.curLine) > 80 && !reLink.MatchString(ctx.curLine) {
 		ctx.print("Line longer than 80 characters.")
 		foundIssue = 1
 	}
