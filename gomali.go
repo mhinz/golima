@@ -63,6 +63,7 @@ func checkFile(filename string) {
 
 func (ctx *Context) print(msg string) {
 	fmt.Printf("%s:%d:%s\n", ctx.filename, ctx.curLineNr, msg)
+	foundIssue = 1
 }
 
 // Check all available rules for the current context.
@@ -119,7 +120,6 @@ func (ctx *Context) ruleProperHeader() {
 	if reHeader.MatchString(ctx.curLine) {
 		if len(ctx.prevLine) > 0 || len(ctx.nextLine) > 0 {
 			ctx.print("Header must be surrounded by blank lines.")
-			foundIssue = 1
 		}
 	}
 }
@@ -128,6 +128,5 @@ func (ctx *Context) ruleProperHeader() {
 func (ctx *Context) ruleLineLength() {
 	if len(ctx.curLine) > 80 && !reLink.MatchString(ctx.curLine) {
 		ctx.print("Line longer than 80 characters.")
-		foundIssue = 1
 	}
 }
