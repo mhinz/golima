@@ -14,11 +14,11 @@ type Context struct {
 }
 
 var (
-	reHeader = regexp.MustCompile("^#{1,6}")
+	foundIssue = 0
+	reHeader   = regexp.MustCompile("^#{1,6}")
 )
 
 func main() {
-	foundIssue := false
 	log.SetFlags(log.Lshortfile)
 
 	if file, err := os.Open("/data/github/vim-galore/README.md"); err != nil {
@@ -27,7 +27,7 @@ func main() {
 		scanner := bufio.NewScanner(file)
 		ctx := Context{"", scanner.Text(), scanner.Text()}
 		for scanner.Scan() {
-			foundIssue = ctx.checkRules() || foundIssue
+			ctx.checkRules()
 			ctx = Context{ctx.curLine, ctx.nextLine, scanner.Text()}
 		}
 		if err = scanner.Err(); err != nil {
@@ -36,34 +36,26 @@ func main() {
 		}
 		file.Close()
 	}
-
-	if foundIssue {
-		os.Exit(1)
-	}
-	os.Exit(0)
+	os.Exit(foundIssue)
 }
 
-func (ctx *Context) checkRules() bool {
-	foundIssue := false
-	foundIssue = ctx.ruleLineLength() || foundIssue
-	foundIssue = ctx.ruleProperHeader() || foundIssue
-	return foundIssue
+func (ctx *Context) checkRules() {
+	ctx.ruleLineLength()
+	ctx.ruleProperHeader()
 }
 
-func (ctx *Context) ruleProperHeader() bool {
+func (ctx *Context) ruleProperHeader() {
 	if reHeader.MatchString(ctx.curLine) {
 		if len(ctx.prevLine) > 0 || len(ctx.nextLine) > 0 {
 			log.Println("Header must be surrounded by blank lines")
-			return true
+			foundIssue = 1
 		}
 	}
-	return false
 }
 
-func (ctx *Context) ruleLineLength() bool {
+func (ctx *Context) ruleLineLength() {
 	if len(ctx.curLine) > 80 {
 		log.Println("Line longer than 80 characters.")
-		return true
+		foundIssue = 1
 	}
-	return false
 }
