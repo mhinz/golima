@@ -70,6 +70,8 @@ func (ctx *Context) checkRules() {
 	if reCodeBlock.MatchString(ctx.curLine) {
 		ctx.ruleProperCodeBlock()
 		return
+	} else if inCodeBlock {
+		return
 	} else if reTable.MatchString(ctx.curLine) {
 		ctx.ruleProperTable()
 		return
@@ -80,6 +82,7 @@ func (ctx *Context) checkRules() {
 	ctx.ruleProperHeader()
 }
 
+// Check if table is surrounded by blank lines.
 func (ctx *Context) ruleProperTable() {
 	if inTable {
 		if ctx.nextLine == "" {
@@ -96,6 +99,7 @@ func (ctx *Context) ruleProperTable() {
 	}
 }
 
+// Check if code block is surrounded by blank lines.
 func (ctx *Context) ruleProperCodeBlock() {
 	if inCodeBlock {
 		if len(ctx.nextLine) > 0 {
