@@ -1,6 +1,6 @@
 # gomali
 
-Just a simple and fast **Ma**rkdown **li**nter written in **Go**.
+Just a simple, fast and pretty biased **Ma**rkdown **li**nter written in **Go**.
 
 #### Installation
 
