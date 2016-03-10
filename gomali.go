@@ -79,8 +79,16 @@ func (ctx *Context) checkRules() {
 	} else if reBullet.MatchString(ctx.curLine) {
 		return
 	}
+	ctx.ruleConsecutiveBlankLines()
 	ctx.ruleLineLength()
 	ctx.ruleProperHeader()
+}
+
+// CHeck if there are consecutive blank lines.
+func (ctx *Context) ruleConsecutiveBlankLines() {
+	if ctx.prevLine == "" && ctx.curLine == "" && ctx.curLineNr > 1 {
+		ctx.print("No reason for consecutive blank lines.")
+	}
 }
 
 // Check if table is surrounded by blank lines.
