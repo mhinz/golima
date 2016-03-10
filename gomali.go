@@ -24,14 +24,21 @@ var (
 
 func main() {
 	log.SetFlags(log.Lshortfile)
-	file, err := os.Open("/data/github/vim-galore/README.md")
+	for _, filename := range os.Args[1:] {
+		checkFile(filename)
+	}
+	os.Exit(foundIssue)
+}
+
+func checkFile(filename string) {
+	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	ctx := Context{"foo.vim", -1, scanner.Text(), "", scanner.Text()}
+	ctx := Context{filename, -1, scanner.Text(), "", scanner.Text()}
 	for scanner.Scan() {
 		ctx.checkRules()
 		ctx = Context{ctx.filename, ctx.curLineNr+1, ctx.nextLine, ctx.curLine, scanner.Text()}
@@ -46,8 +53,6 @@ func main() {
 		file.Close()
 		log.Fatal(err)
 	}
-
-	os.Exit(foundIssue)
 }
 
 func (ctx *Context) print(msg string) {
