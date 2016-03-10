@@ -19,7 +19,7 @@ type Context struct {
 
 var (
 	foundIssue = 0  // process return value
-	reHeader   = regexp.MustCompile("^#{1,6}")
+	reHeader   = regexp.MustCompile("^#{1,6} ")
 )
 
 func main() {
