@@ -36,6 +36,12 @@ func main() {
 		ctx.checkRules()
 		ctx = Context{ctx.filename, ctx.curLineNr+1, ctx.nextLine, ctx.curLine, scanner.Text()}
 	}
+	// Since we called scanner.Text() twice before scanner.Scan(),
+	// we still have to check the last two lines at this point.
+	for i := 0; i < 1; i++ {
+		ctx.checkRules()
+		ctx = Context{ctx.filename, ctx.curLineNr+1, ctx.nextLine, ctx.curLine, scanner.Text()}
+	}
 	if err = scanner.Err(); err != nil {
 		file.Close()
 		log.Fatal(err)
