@@ -19,6 +19,7 @@ type Context struct {
 
 var (
 	foundIssue = 0  // process return value
+	reBullet   = regexp.MustCompile("^\\s*- ")
 	reHeader   = regexp.MustCompile("^#{1,6} ")
 	reLink     = regexp.MustCompile("[\\w+\\]\\([\\w#]+\\)")
 )
@@ -62,6 +63,9 @@ func (ctx *Context) print(msg string) {
 
 // Check all available rules for the current context.
 func (ctx *Context) checkRules() {
+	if reBullet.MatchString(ctx.curLine) {
+		return
+	}
 	ctx.ruleLineLength()
 	ctx.ruleProperHeader()
 }
