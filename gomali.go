@@ -4,6 +4,17 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"regexp"
+)
+
+type Context struct {
+	prevLine string
+	curLine  string
+	nextLine string
+}
+
+var (
+	reHeader = regexp.MustCompile("^#{1,6}")
 )
 
 func main() {
@@ -14,8 +25,10 @@ func main() {
 		log.Fatal(err)
 	} else {
 		scanner := bufio.NewScanner(file)
+		ctx := Context{"", scanner.Text(), scanner.Text()}
 		for scanner.Scan() {
-			foundIssue = checkRules(scanner.Text()) || foundIssue
+			foundIssue = ctx.checkRules() || foundIssue
+			ctx = Context{ctx.curLine, ctx.nextLine, scanner.Text()}
 		}
 		if err = scanner.Err(); err != nil {
 			file.Close()
@@ -30,13 +43,25 @@ func main() {
 	os.Exit(0)
 }
 
-func checkRules(s string) bool {
-	foundIssue := ruleTooLong(s)
+func (ctx *Context) checkRules() bool {
+	foundIssue := false
+	foundIssue = ctx.ruleLineLength() || foundIssue
+	foundIssue = ctx.ruleProperHeader() || foundIssue
 	return foundIssue
 }
 
-func ruleTooLong(s string) bool {
-	if len(s) > 80 {
+func (ctx *Context) ruleProperHeader() bool {
+	if reHeader.MatchString(ctx.curLine) {
+		if len(ctx.prevLine) > 0 || len(ctx.nextLine) > 0 {
+			log.Println("Header must be surrounded by blank lines")
+			return true
+		}
+	}
+	return false
+}
+
+func (ctx *Context) ruleLineLength() bool {
+	if len(ctx.curLine) > 80 {
 		log.Println("Line longer than 80 characters.")
 		return true
 	}
