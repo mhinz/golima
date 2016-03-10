@@ -10,18 +10,20 @@ import (
 
 // The current line with one line of surrounding context.
 type Context struct {
-	filename  string
-	curLineNr int
-	curLine   string
-	prevLine  string
-	nextLine  string
+	filename    string
+	curLineNr   int
+	curLine     string
+	prevLine    string
+	nextLine    string
 }
 
 var (
-	foundIssue = 0  // process return value
-	reBullet   = regexp.MustCompile("^\\s*- ")
-	reHeader   = regexp.MustCompile("^#{1,6} ")
-	reLink     = regexp.MustCompile("[\\w+\\]\\([\\w#]+\\)")
+	foundIssue  = 0  // process return value
+	inCodeBlock = false
+	reBullet    = regexp.MustCompile("^\\s*- ")
+	reCodeBlock = regexp.MustCompile("^```")
+	reHeader    = regexp.MustCompile("^#{1,6} ")
+	reLink      = regexp.MustCompile("[\\w+\\]\\([\\w#]+\\)")
 )
 
 func main() {
@@ -63,18 +65,35 @@ func (ctx *Context) print(msg string) {
 
 // Check all available rules for the current context.
 func (ctx *Context) checkRules() {
-	if reBullet.MatchString(ctx.curLine) {
+	if reCodeBlock.MatchString(ctx.curLine) {
+		ctx.ruleProperCodeBlock()
+		return
+	} else if reBullet.MatchString(ctx.curLine) {
 		return
 	}
 	ctx.ruleLineLength()
 	ctx.ruleProperHeader()
 }
 
+func (ctx *Context) ruleProperCodeBlock() {
+	if inCodeBlock {
+		if len(ctx.nextLine) > 0 {
+			ctx.print("Code block must be surrounded by blank lines.")
+		}
+		inCodeBlock = false
+	} else {
+		if len(ctx.prevLine) > 0 {
+			ctx.print("Code block must be surrounded by blank lines.")
+		}
+		inCodeBlock = true
+	}
+}
+
 // Check if a potential header is surrounded by blank lines.
 func (ctx *Context) ruleProperHeader() {
 	if reHeader.MatchString(ctx.curLine) {
 		if len(ctx.prevLine) > 0 || len(ctx.nextLine) > 0 {
-			ctx.print("Header must be surrounded by blank lines")
+			ctx.print("Header must be surrounded by blank lines.")
 			foundIssue = 1
 		}
 	}
