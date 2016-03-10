@@ -20,10 +20,12 @@ type Context struct {
 var (
 	foundIssue  = 0  // process return value
 	inCodeBlock = false
+	inTable     = false
 	reBullet    = regexp.MustCompile("^\\s*- ")
 	reCodeBlock = regexp.MustCompile("^```")
 	reHeader    = regexp.MustCompile("^#{1,6} ")
 	reLink      = regexp.MustCompile("[\\w+\\]\\([\\w#]+\\)")
+	reTable     = regexp.MustCompile("^\\|")
 )
 
 func main() {
@@ -68,6 +70,9 @@ func (ctx *Context) checkRules() {
 	if reCodeBlock.MatchString(ctx.curLine) {
 		ctx.ruleProperCodeBlock()
 		return
+	} else if reTable.MatchString(ctx.curLine) {
+		ctx.ruleProperTable()
+		return
 	} else if reBullet.MatchString(ctx.curLine) {
 		return
 	}
@@ -75,15 +80,31 @@ func (ctx *Context) checkRules() {
 	ctx.ruleProperHeader()
 }
 
+func (ctx *Context) ruleProperTable() {
+	if inTable {
+		if ctx.nextLine == "" {
+			inTable = false
+		} else if !reTable.MatchString(ctx.nextLine) {
+			ctx.print("Tables must be surrounded by blank lines.")
+		}
+	} else {
+		if ctx.prevLine == "" {
+			inTable = true
+		} else {
+			ctx.print("Tables must be surrounded by blank lines.")
+		}
+	}
+}
+
 func (ctx *Context) ruleProperCodeBlock() {
 	if inCodeBlock {
 		if len(ctx.nextLine) > 0 {
-			ctx.print("Code block must be surrounded by blank lines.")
+			ctx.print("Code blocks must be surrounded by blank lines.")
 		}
 		inCodeBlock = false
 	} else {
 		if len(ctx.prevLine) > 0 {
-			ctx.print("Code block must be surrounded by blank lines.")
+			ctx.print("Code blocks must be surrounded by blank lines.")
 		}
 		inCodeBlock = true
 	}
