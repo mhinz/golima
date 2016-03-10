@@ -8,6 +8,7 @@ import (
 
 func main() {
 	foundIssue := false
+	log.SetFlags(log.Lshortfile)
 
 	if file, err := os.Open("/data/github/vim-galore/README.md"); err != nil {
 		log.Fatal(err)
@@ -36,10 +37,8 @@ func checkRules(s string) bool {
 
 func ruleTooLong(s string) bool {
 	if len(s) > 80 {
-		log.Printf("Too long: %s\n", s)
+		log.Println("Line longer than 80 characters.")
 		return true
-	} else {
-		log.Printf("Len: %d\n", len(s))
 	}
 	return false
 }
