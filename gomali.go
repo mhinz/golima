@@ -59,6 +59,9 @@ func checkFile(filename string) {
 		file.Close()
 		log.Fatal(err)
 	}
+
+	inCodeBlock = false
+	inTable = false
 }
 
 func (ctx *Context) print(msg string) {
