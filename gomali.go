@@ -14,12 +14,12 @@ func main() {
 	} else {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			foundIssue = foundIssue || checkRules(scanner.Text())
+			foundIssue = checkRules(scanner.Text()) || foundIssue
 		}
-		// if err = scanner.Err(); err != nil {
-		// 	file.Close()
-		// 	log.Fatal(err)
-		// }
+		if err = scanner.Err(); err != nil {
+			file.Close()
+			log.Fatal(err)
+		}
 		file.Close()
 	}
 
