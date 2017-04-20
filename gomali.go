@@ -10,15 +10,15 @@ import (
 
 // The current line with one line of surrounding context.
 type Context struct {
-	filename    string
-	curLineNr   int
-	curLine     string
-	prevLine    string
-	nextLine    string
+	filename  string
+	curLineNr int
+	curLine   string
+	prevLine  string
+	nextLine  string
 }
 
 var (
-	foundIssue  = 0  // process return value
+	foundIssue  = 0 // process return value
 	inCodeBlock = false
 	inTable     = false
 	reBullet    = regexp.MustCompile("^\\s*- ")
@@ -47,13 +47,13 @@ func checkFile(filename string) {
 	ctx := Context{filename, -1, scanner.Text(), "", scanner.Text()}
 	for scanner.Scan() {
 		ctx.checkRules()
-		ctx = Context{ctx.filename, ctx.curLineNr+1, ctx.nextLine, ctx.curLine, scanner.Text()}
+		ctx = Context{ctx.filename, ctx.curLineNr + 1, ctx.nextLine, ctx.curLine, scanner.Text()}
 	}
 	// Since we called scanner.Text() twice before scanner.Scan(),
 	// we still have to check the last two lines at this point.
 	for i := 0; i < 1; i++ {
 		ctx.checkRules()
-		ctx = Context{ctx.filename, ctx.curLineNr+1, ctx.nextLine, ctx.curLine, scanner.Text()}
+		ctx = Context{ctx.filename, ctx.curLineNr + 1, ctx.nextLine, ctx.curLine, scanner.Text()}
 	}
 	if err = scanner.Err(); err != nil {
 		file.Close()
