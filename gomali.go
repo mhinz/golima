@@ -26,6 +26,7 @@ var (
 	reHeader    = regexp.MustCompile("^#{1,6} ")
 	reLink      = regexp.MustCompile("[\\w+\\]\\([\\w#]+\\)")
 	reTable     = regexp.MustCompile("^\\|")
+	reTag       = regexp.MustCompile("^\\s*<")
 )
 
 func main() {
@@ -137,7 +138,7 @@ func (ctx *Context) ruleProperHeader() {
 
 // Check if the current line is longer than 80 characters.
 func (ctx *Context) ruleLineLength() {
-	if len(ctx.curLine) > 80 && !reLink.MatchString(ctx.curLine) {
+	if len(ctx.curLine) > 80 && !reLink.MatchString(ctx.curLine) && !reTag.MatchString(ctx.curLine) {
 		ctx.print("Line longer than 80 characters.")
 	}
 }
